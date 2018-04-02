@@ -4,6 +4,8 @@ const axios = require("axios")
 const get = require("lodash.get")
 const querystring = require("query-string")
 const { getLoginInfo } = require("./login")
+const path = require("path")
+const pm2 = require("pm2")
 
 const sleep = (duration = 1000) => {
     return new Promise(resolve => {
@@ -91,8 +93,8 @@ const starProjects = async () => {
         url: "http://gitstar.top:88/star_update",
         method: "get",
         headers: {
-            'Accept': 'application/json', 
-            'Cookie': gitStarCookie
+            Accept: "application/json",
+            Cookie: gitStarCookie
         },
         auth: {
             username: accounts.github_account_name,
@@ -100,13 +102,61 @@ const starProjects = async () => {
         }
     })
 
-    if(updatestar && !get(updatestar, "data.Msg") &&
-    get(updatestar, "data.Code") !== 0){
-        log.success('项目刷新成功！')
+    if (
+        updatestar &&
+        !get(updatestar, "data.Msg") &&
+        get(updatestar, "data.Code") !== 0
+    ) {
+        log.success("项目刷新成功！")
     }
-    
+}
+
+const startBgTask = async (cron = "*/5 * * * *") => {
+    const accounts = await getLoginInfo()
+    pm2.connect(function(err) {
+        if (err) {
+            log.error(err)
+            process.exit(2)
+        }
+
+        pm2.start(
+            {
+                name: "gitstar_worker",
+                script: path.resolve(__dirname, "./worker.js"), // Script to be run
+                args: [`--cron=${cron}`]
+            },
+            function(err, apps) {
+                pm2.disconnect() // Disconnects from PM2
+                if (err) {
+                    log.error(err)
+                    process.exit(2)
+                }
+                log.success(`定时任务启动成功`)
+            }
+        )
+    })
+}
+
+const stopBgTask = () => {
+    pm2.connect(function(err) {
+        if (err) {
+            log.error(err)
+            process.exit(2)
+        }
+
+        pm2.stop(path.resolve(__dirname, "./worker.js"), function(err, apps) {
+            pm2.disconnect() // Disconnects from PM2
+            if (err) {
+                log.error(err)
+                process.exit(2)
+            }
+            log.success(`定时任务停止成功`)
+        })
+    })
 }
 
 module.exports = {
-    starProjects
+    starProjects,
+    startBgTask,
+    stopBgTask
 }
