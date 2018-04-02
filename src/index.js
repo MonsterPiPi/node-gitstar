@@ -10,8 +10,7 @@ program
     .option("-a, --accounts", "查看账号信息")
     .option(
         "--bg_start [value]",
-        '后台运行点赞，使用cron表达式，比如 gitstar --bg_start="*/5 * * * *" 默认5分钟执行一次',
-        "*/5 * * * *"
+        '后台运行点赞，使用cron表达式，比如 gitstar --bg_start="*/5 * * * *" 默认5分钟执行一次'
     )
     .option("--bg_stop", "停止后台点赞程序")
     .parse(process.argv)

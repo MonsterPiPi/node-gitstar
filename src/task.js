@@ -111,8 +111,11 @@ const starProjects = async () => {
     }
 }
 
-const startBgTask = async (cron = "*/5 * * * *") => {
+const startBgTask = async cron => {
     const accounts = await getLoginInfo()
+    if (cron === true || cron === undefined || cron === null) {
+        cron = "*/5 * * * *"
+    }
     pm2.connect(function(err) {
         if (err) {
             log.error(err)
@@ -126,32 +129,25 @@ const startBgTask = async (cron = "*/5 * * * *") => {
                 args: [`--cron=${cron}`]
             },
             function(err, apps) {
-                pm2.disconnect() // Disconnects from PM2
                 if (err) {
                     log.error(err)
-                    process.exit(2)
+                    return pm2.disconnect()
                 }
                 log.success(`定时任务启动成功`)
+                pm2.disconnect() // Disconnects from PM2
             }
         )
     })
 }
 
 const stopBgTask = () => {
-    pm2.connect(function(err) {
+    pm2.delete("gitstar_worker", function(err, apps) {
         if (err) {
             log.error(err)
-            process.exit(2)
+            return process.exit(2)
         }
-
-        pm2.stop(path.resolve(__dirname, "./worker.js"), function(err, apps) {
-            pm2.disconnect() // Disconnects from PM2
-            if (err) {
-                log.error(err)
-                process.exit(2)
-            }
-            log.success(`定时任务停止成功`)
-        })
+        log.success(`定时任务已关闭`)
+        process.exit(2)
     })
 }
 
