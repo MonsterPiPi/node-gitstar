@@ -1,6 +1,6 @@
 {
   "name": "node-gitstar",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "",
   "main": "index.js",
   "bin": {
@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "babel src --out-dir lib",
-    "precommit": "lint-staged && npm run build"
+    "precommit": "npm run build && lint-staged && git add -A"
   },
   "repository": {
     "type": "git",
