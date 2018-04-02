@@ -18,7 +18,7 @@ npm install -g node-gitstar
 ### 刷赞
 
 ```bash
-node-gitstar -s(--star)
+gitstar -s(--star)
 ```
 
 
@@ -26,7 +26,7 @@ node-gitstar -s(--star)
 ### 更新账号信息
 
 ```
-node-gitstar -l(--login)
+gitstar -l(--login)
 ```
 
 
@@ -34,6 +34,6 @@ node-gitstar -l(--login)
 ### 查看账号信息
 
 ```bash
-node-gitstar -a(--accounts)
+gitstar -a(--accounts)
 ```
 
