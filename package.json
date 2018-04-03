@@ -1,6 +1,6 @@
 {
   "name": "node-gitstar",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "",
   "main": "index.js",
   "bin": {
@@ -29,6 +29,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "chalk": "^2.3.2",
+    "cli-spinner": "^0.2.8",
     "cli-table2": "^0.2.0",
     "commander": "^2.15.1",
     "fs-extra": "^5.0.0",

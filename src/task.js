@@ -3,8 +3,11 @@ const log = require("./log")
 const axios = require("axios")
 const get = require("lodash.get")
 const querystring = require("query-string")
+const Table = require("cli-table2")
 const { getLoginInfo } = require("./login")
 const path = require("path")
+const chalk = require("chalk")
+const Spinner = require("cli-spinner").Spinner
 const pm2 = require("pm2")
 
 const sleep = (duration = 1000) => {
@@ -61,9 +64,15 @@ const getRecommendProjects = async () => {
 }
 
 const starProjects = async () => {
+    var spinner = new Spinner("正在点赞中... %s")
+    spinner.setSpinnerString("|/-\\")
+    spinner.start()
+
     const { accounts, gitStarCookie, projects } = await getRecommendProjects()
     const starred = []
-    for (let i = 0; i < projects.length; i++) {
+    let errors = 0,
+        success = 0
+    for (let i = 0; i < projects.length / 100; i++) {
         const item = projects[i]
         try {
             const res = await axios({
@@ -77,17 +86,43 @@ const starProjects = async () => {
                     password: accounts.github_account_password
                 }
             })
-
+            success++
             starred.push({
                 repo: item.Repo,
-                res: res
+                status: chalk.green("点赞成功")
             })
-        } catch (e) {}
+        } catch (e) {
+            errors++
+            starred.push({
+                repo: item.Repo,
+                status: chalk.red("点赞失败")
+            })
+        }
 
         await sleep(500)
     }
 
-    log.success(`总共成功点赞${starred.length}个项目`)
+    spinner.stop(true)
+
+    const StarredTable = new Table({
+        head: ["项目地址", "状态"],
+        colWidths: [50, 50]
+    })
+
+    starred.forEach(item => {
+        StarredTable.push([item.repo, item.status])
+    })
+
+    log.success(`总共成功点赞${success}个项目！`)
+    if (errors) {
+        log.error(`其中${errors}个项目点赞失败！`)
+    }
+
+    log.info("\n" + StarredTable.toString())
+
+    var spinner2 = new Spinner("正在刷新项目... %s")
+    spinner2.setSpinnerString("|/-\\")
+    spinner2.start()
 
     const updatestar = await axios({
         url: "http://gitstar.top:88/star_update",
@@ -101,6 +136,8 @@ const starProjects = async () => {
             password: accounts.github_account_password
         }
     })
+
+    spinner2.stop(true)
 
     if (
         updatestar &&
