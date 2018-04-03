@@ -65,10 +65,21 @@ const getRecommendProjects = async () => {
 }
 
 const starProjects = async () => {
-    const spinner = new Spinner("点赞准备中... %s")
+    const spinner = new Spinner(chalk.yellow("点赞准备中... %s"))
     spinner.setSpinnerString("|/-\\")
     spinner.start()
-    const { accounts, gitStarCookie, projects } = await getRecommendProjects()
+
+    try {
+        const {
+            accounts,
+            gitStarCookie,
+            projects
+        } = await getRecommendProjects()
+    } catch (e) {
+        spinner.stop(true)
+        log.error(e)
+        process.exit(2)
+    }
     spinner.stop(true)
 
     const starred = []
@@ -76,7 +87,7 @@ const starProjects = async () => {
         success = 0
 
     const Bar = new ProgressBar(
-        chalk.green("正在点赞中... [:bar] :rate/bps :percent :elapseds"),
+        chalk.yellow("正在点赞中... [:bar] :rate/bps :percent :elapseds"),
         {
             complete: "=",
             incomplete: " ",
