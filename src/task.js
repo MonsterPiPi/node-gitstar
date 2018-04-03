@@ -68,13 +68,12 @@ const starProjects = async () => {
     const spinner = new Spinner(chalk.yellow("点赞准备中... %s"))
     spinner.setSpinnerString("|/-\\")
     spinner.start()
-
+    let accounts, gitStarCookie, projects
     try {
-        const {
-            accounts,
-            gitStarCookie,
-            projects
-        } = await getRecommendProjects()
+        const payload = await getRecommendProjects()
+        accounts = payload.accounts
+        gitStarCookie = payload.gitStarCookie
+        projects = payload.projects
     } catch (e) {
         spinner.stop(true)
         log.error(e)
