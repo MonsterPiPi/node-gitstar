@@ -132,27 +132,32 @@ const starProjects = async () => {
     spinner2.setSpinnerString("|/-\\")
     spinner2.start()
 
-    const updatestar = await axios({
-        url: "http://gitstar.top:88/star_update",
-        method: "get",
-        headers: {
-            Accept: "application/json",
-            Cookie: gitStarCookie
-        },
-        auth: {
-            username: accounts.github_account_name,
-            password: accounts.github_account_password
+    try {
+        const updatestar = await axios({
+            url: "http://gitstar.top:88/star_update",
+            method: "get",
+            headers: {
+                Accept: "application/json",
+                Cookie: gitStarCookie
+            },
+            auth: {
+                username: accounts.github_account_name,
+                password: accounts.github_account_password
+            }
+        })
+
+        spinner2.stop(true)
+
+        if (
+            updatestar &&
+            !get(updatestar, "data.Msg") &&
+            get(updatestar, "data.Code") !== 0
+        ) {
+            log.success("项目刷新成功！")
         }
-    })
-
-    spinner2.stop(true)
-
-    if (
-        updatestar &&
-        !get(updatestar, "data.Msg") &&
-        get(updatestar, "data.Code") !== 0
-    ) {
-        log.success("项目刷新成功！")
+    } catch (e) {
+        spinner2.stop(true)
+        log.error("项目刷新失败！")
     }
 }
 
