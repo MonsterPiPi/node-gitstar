@@ -106,8 +106,12 @@ const starProjects = async () => {
 
     const StarredTable = new Table({
         head: ["项目地址", "状态"],
-        colWidths: [50, 50]
+        colWidths: [50, 20]
     })
+
+    if (starred.length == 0) {
+        StarredTable.push(["暂无项目可点赞", ""])
+    }
 
     starred.forEach(item => {
         StarredTable.push([item.repo, item.status])
