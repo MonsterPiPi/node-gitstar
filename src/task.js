@@ -7,6 +7,7 @@ const Table = require("cli-table2")
 const { getLoginInfo } = require("./login")
 const path = require("path")
 const chalk = require("chalk")
+const ProgressBar = require("progress")
 const Spinner = require("cli-spinner").Spinner
 const pm2 = require("pm2")
 
@@ -64,14 +65,26 @@ const getRecommendProjects = async () => {
 }
 
 const starProjects = async () => {
-    var spinner = new Spinner("正在点赞中... %s")
+    const spinner = new Spinner("点赞准备中... %s")
     spinner.setSpinnerString("|/-\\")
     spinner.start()
-
     const { accounts, gitStarCookie, projects } = await getRecommendProjects()
+    spinner.stop(true)
+
     const starred = []
     let errors = 0,
         success = 0
+
+    const Bar = new ProgressBar(
+        chalk.green("正在点赞中... [:bar] :rate/bps :percent :elapseds"),
+        {
+            complete: "=",
+            incomplete: " ",
+            width: 20,
+            total: projects.length
+        }
+    )
+
     for (let i = 0; i < projects.length; i++) {
         const item = projects[i]
         try {
@@ -99,10 +112,10 @@ const starProjects = async () => {
             })
         }
 
+        Bar.tick(1)
+
         await sleep(500)
     }
-
-    spinner.stop(true)
 
     const StarredTable = new Table({
         head: ["项目地址", "状态"],
