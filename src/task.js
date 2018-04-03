@@ -124,6 +124,10 @@ const starProjects = async () => {
 
     log.info("\n" + StarredTable.toString())
 
+    if (starred.length == 0) {
+        return
+    }
+
     var spinner2 = new Spinner("正在刷新项目... %s")
     spinner2.setSpinnerString("|/-\\")
     spinner2.start()
